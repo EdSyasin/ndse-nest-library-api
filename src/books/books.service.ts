@@ -1,12 +1,12 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import IUser from "../interfaces/user.interface";
+import IBook from "../interfaces/book.interface";
 import CreateBookDto from "./dto/create-book.dto";
 import {v4 as uuid} from 'uuid';
 import UpdateBookDto from "./dto/update-book.dto";
 
 @Injectable()
 export class BooksService {
-	books: IUser[] = []
+	books: IBook[] = []
 
 	findById(id: string) {
 		const book = this.books.find(x => x.id === id);
@@ -21,7 +21,7 @@ export class BooksService {
 	}
 
 	addBook(bookDto: CreateBookDto) {
-		const newUser: IUser = { ...bookDto, id: uuid() };
+		const newUser: IBook = { ...bookDto, id: uuid() };
 		this.books.push(newUser);
 		return newUser
 	}
