@@ -1,15 +1,19 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import IBook from "../interfaces/book.interface";
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import CreateBookDto from "./dto/create-book.dto";
-import {v4 as uuid} from 'uuid';
 import UpdateBookDto from "./dto/update-book.dto";
+import { InjectConnection, InjectModel } from "@nestjs/mongoose";
+import { Book, BookDocument } from "./books.schema";
+import { Connection, Model } from "mongoose";
 
 @Injectable()
 export class BooksService {
-	books: IBook[] = []
 
-	findById(id: string) {
-		const book = this.books.find(x => x.id === id);
+	constructor(@InjectModel(Book.name) private BookModel: Model<BookDocument>,
+				@InjectConnection() private connection: Connection ) {}
+
+	async findById(id: string) {
+		const book = await this.BookModel.findById(id).exec();
+		console.log(book)
 		if (!book) {
 			throw new HttpException({message: "Книга не найдена"}, HttpStatus.NOT_FOUND);
 		}
@@ -17,25 +21,24 @@ export class BooksService {
 	}
 
 	findAll() {
-		return this.books;
+		return this.BookModel.find();
 	}
 
 	addBook(bookDto: CreateBookDto) {
-		const newUser: IBook = { ...bookDto, id: uuid() };
-		this.books.push(newUser);
-		return newUser
+		const book = new this.BookModel(bookDto);
+		return book.save()
 	}
 
-	deleteBook(id: string) {
-		const book = this.books.find(x => x.id === id);
+	async deleteBook(id: string) {
+		const book = await this.BookModel.findById(id).exec();
 		if(!book) {
 			throw new HttpException({message: "Книга не найдена"}, HttpStatus.NOT_FOUND);
 		}
-		this.books = this.books.filter(x => x !== book);
+		book.delete()
 	}
 
-	updateBook(id: string, dto: UpdateBookDto) {
-		const book = this.books.find(x => x.id === id);
+	async updateBook(id: string, dto: UpdateBookDto) {
+		const book = await this.BookModel.findById(id).exec();
 		if(!book) {
 			throw new HttpException({message: "Книга не найдена"}, HttpStatus.NOT_FOUND);
 		}
@@ -48,6 +51,6 @@ export class BooksService {
 		if(dto.author) {
 			book.author = dto.author;
 		}
-		return book;
+		return book.save();
 	}
 }
