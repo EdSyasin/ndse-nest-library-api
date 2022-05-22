@@ -14,10 +14,10 @@ export class ResponseInterceptor implements NestInterceptor {
 					data
 				}
 			}),
-				catchError(data => {
+				catchError(err => {
 					throw new BadRequestException({
 						status: ResponseStatuses.Fail,
-						data: data.message
+						data: err.message
 					})
 				}))
 	}
