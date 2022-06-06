@@ -13,7 +13,6 @@ export class BooksService {
 
 	async findById(id: string) {
 		const book = await this.BookModel.findById(id).exec();
-		console.log(book)
 		if (!book) {
 			throw new HttpException({message: "Книга не найдена"}, HttpStatus.NOT_FOUND);
 		}
