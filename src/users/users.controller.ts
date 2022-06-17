@@ -14,5 +14,10 @@ export class UsersController {
 		return this.usersService.registration(user);
 	}
 
+	@Post('signin')
+	@UsePipes(new ValidationPipe())
+	signIn (@Body() user: UserDto) {
+		return this.usersService.login(user);
+	}
 
 }
