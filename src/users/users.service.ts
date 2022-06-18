@@ -5,6 +5,7 @@ import {User, UserDocument} from "./users.schema";
 import {Connection, Document, Model} from "mongoose";
 import * as bcrypt from 'bcryptjs';
 import {JwtService} from "@nestjs/jwt";
+import {CreateUserDto} from "./dto/create-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
 				private jwtService: JwtService
 				) {}
 
-	async registration(user: UserDto) {
+	async registration(user: CreateUserDto) {
 		const existedUser = await this.getUserByUsername(user.username)
 		if (existedUser) {
 			throw new BadRequestException({message: 'Пользователь существует'})
