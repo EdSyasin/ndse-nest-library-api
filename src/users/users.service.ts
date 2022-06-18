@@ -10,7 +10,7 @@ import {CreateUserDto} from "./dto/create-user.dto";
 @Injectable()
 export class UsersService {
 
-	constructor(@InjectModel(User.name) private UserModel: Model<UserDocument>,
+	constructor(@InjectModel(User.name) private userModel: Model<UserDocument>,
 				@InjectConnection() private connection: Connection,
 				private jwtService: JwtService
 				) {}
@@ -22,7 +22,7 @@ export class UsersService {
 		}
 
 		const hashedPassword = await bcrypt.hash(user.password, 5);
-		const newUser = new this.UserModel({...user, password: hashedPassword})
+		const newUser = new this.userModel({...user, password: hashedPassword})
 		await newUser.save();
 		return newUser
 	}
@@ -33,11 +33,15 @@ export class UsersService {
 	}
 
 	async getUserByUsername(username: string) {
-		return this.UserModel.findOne({username});
+		return this.userModel.findOne({username});
+	}
+
+	async getById(id: (User & Document)['_id'] ) {
+		return this.userModel.findOne({id});
 	}
 
 	async validateUser(userDto: UserDto) {
-		const user = await this.UserModel.findOne({ username: userDto.username });
+		const user = await this.userModel.findOne({ username: userDto.username });
 		if (!user) {
 			throw new HttpException({message: 'Пользователь не найден'}, HttpStatus.NOT_FOUND)
 		}
@@ -50,7 +54,8 @@ export class UsersService {
 	private generateToken(user: User & Document ) {
 		const payload = {
 			id: user.id,
-			email: user.username
+			email: user.email,
+			username: user.username,
 		}
 		return {
 			token: this.jwtService.sign(payload),
